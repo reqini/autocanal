@@ -1,0 +1,13 @@
+# tus credenciales de YouTube: nunca las subas
+client_secret*.json
+.token*.json
+# entorno y temporales
+.venv/
+__pycache__/
+*.log
+.DS_Store
+# lo que genera el bot (videos pesados)
+partidos/
+canales/
+assets/outro/
+assets/modelos/

@@ -1,0 +1,7 @@
+#!/bin/bash
+# AutoCanal — lanzador. Uso: autocanal ayuda
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+PY="$DIR/.venv/bin/python"
+[ -x "$PY" ] || PY=python3
+exec env PYTHONPATH="$DIR" "$PY" -m autocanal.cli "$@"

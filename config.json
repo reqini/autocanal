@@ -1,0 +1,18 @@
+{
+ "canal": "Mi Canal de Deportes",
+ "marca": "MI CANAL",
+ "handle": "@MiCanal",
+ "hashtags": ["Deportes", "Highlights"],
+ "relax_canal": "Mi Canal para Dormir",
+ "infantil_canal": "Mi Canal Infantil",
+ "shorts_auto": 5,
+ "gancho": true,
+ "espera_vigilar": 120,
+ "privacidad": "public",
+ "subir_auto": true,
+ "modelo_whisper": "ggml-small.bin",
+ "relax_sonidos": ["blanco", "lluvia", "ambiente"],
+ "relax_horas": 8,
+ "relax_hora": "03:10",
+ "lolo_hora": "17:10"
+}
