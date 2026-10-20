@@ -26,6 +26,7 @@
   autocanal lolo subir          sube lo pendiente al canal infantil
   autocanal lolo diario         arma + sube (lo que corre solo cada día)
   autocanal lolo servicio       lo deja programado todos los días (17:10) | lolo servicio quitar
+  autocanal lolo aprende vocales|numeros|abecedario [3d]   canción educativa (3D con Blender: con juegos interactivos)
   autocanal lolo historia HISTORIA.md [N]   arma N shorts encadenados desde tu historia .md y los sube
   autocanal lolo archivo VIDEO.mp4 ["Título"]   sube un video infantil propio (+ short vertical si es largo)
 
@@ -522,6 +523,12 @@ def lolo_cmd(rest):
     if sub == "conectar":
         from .subir import cliente
         cliente("lolo", log)
+    elif sub == "aprende":
+        # autocanal lolo aprende vocales|numeros|abecedario [3d] [rapida] -> canción educativa interactiva y la sube
+        from . import educa as E
+        tema = next((x for x in rest[1:] if x in E.TEMAS), "vocales")
+        E.nuevo(tema, dest, log, modo="3d" if "3d" in rest else "2d", calidad="rapida" if "rapida" in rest else "normal")
+        subir_lista(dest, "lolo", log, categoria="27")
     elif sub == "nuevo":
         from . import lolo as L
         L.nuevo(dest, log)

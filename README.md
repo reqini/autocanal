@@ -138,6 +138,17 @@ rita: ¡Lolo! ¡El tesoro está en la cima!
 ```
 Lo que no escribas lo inventa el bot. Otros: `autocanal lolo nuevo` (historia nueva del día), `autocanal lolo servicio` (una por día a las 17:10). Todo se sube marcado como **contenido para niños**.
 
+### 🎓 Infantil educativo en 3D (con Blender) e interactivo
+
+```bash
+autocanal lolo aprende vocales 3d        # también: numeros | abecedario   (agregá "rapida" para probar a media resolución)
+autocanal lolo aprende vocales           # versión 2D, mucho más rápida
+```
+- **Librería de personajes 3D** (`personajes3d.py`): letras y números con ojos saltones, cejas, cachetes, guantes y zapatillas; **Lolo** (patito de hule), **Rita** (ranita), **Tito** (osito) y **Mishi** (gatita). Todos comparten el mismo esqueleto: caminan, saludan, hablan, parpadean, festejan y se ponen tristes.
+- **Interactivo para chicos de hasta 5 años:** después de aprender, Lolo propone juegos — *"¿Dónde está la E? ¡Señálala!"* con cuenta regresiva 3, 2, 1 y festejo con confeti, y *"¿Cuántas flores hay? ¡Contemos!"* con los objetos apareciendo de a uno.
+- La voz la pone la Mac (`say`), la música y los efectos se generan solos. Blender se usa en segundo plano (no hace falta abrirlo): instalalo con `brew install --cask blender`.
+- Sale en horizontal (video largo) y vertical (short), marcado como contenido para niños.
+
 ### 🖥️ Sin Terminal
 
 Doble clic en **AutoCanal Web.command**: abre una interfaz local en el navegador para cargar videos y ver lo que se armó.
