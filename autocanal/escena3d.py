@@ -87,14 +87,14 @@ def escenario():
         a = bpy.context.object
         a.data.energy, a.data.size = en, 6
         a.rotation_euler = tuple(math.radians(v) for v in rot)
-    loc = (0, -14, 2.3) if not V else (0, -8, 3.0)
-    bpy.ops.object.camera_add(location=loc, rotation=(math.radians(88 if not V else 82), 0, 0))
+    loc = (0, -14, 2.3) if not V else (0, -8.5, 2.4)
+    bpy.ops.object.camera_add(location=loc, rotation=(math.radians(88 if not V else 87), 0, 0))
     cam = bpy.context.object
     cam.data.lens = 40 if not V else 26
     sc.camera = cam
     for f in range(1, NF + 1, FPS):
         t = f / FPS
-        cam.location = (math.sin(t * 0.18) * 0.6, loc[1] + math.sin(t * 0.25) * 0.6, loc[2])
+        cam.location = (math.sin(t * 0.18) * (0.6 if not V else 0.0), loc[1] + math.sin(t * 0.25) * 0.6, loc[2])
         cam.keyframe_insert("location", frame=f)
     return cam
 
@@ -173,6 +173,11 @@ def confeti(t0, centro, n=60):
         mostrar([c], t0, t0 + 2.2, pop=False)
 
 
+def crear(ch, color, fuente, nombre):
+    """Una letra/número con cuerpo propio, o una bolita del color si es una palabra (ROJO, AZUL…)."""
+    return P.bolita(color, nombre) if len(ch) > 2 else P.letra(ch, color, fuente, nombre)
+
+
 # ------------------------------------------------------------------ eventos
 escenario()
 FUENTE = bpy.data.fonts.load(plan["fuente"]) if os.path.exists(plan["fuente"]) else None
@@ -191,7 +196,7 @@ for nombre in plan.get("anfitriones", ["lolo"]):
         if lugar == "centro":
             pos, esc = ((0, -1, 0), 1.25) if not V else ((0, -1, 0), 0.9)
         else:
-            pos, esc = ((-3.9, -1.2, 0), 0.85) if not V else ((2.3, -3.0, 0), 0.45)
+            pos, esc = ((-3.9, -1.2, 0), 0.85) if not V else ((0, -4.6, -0.2), 0.32)
         P.animar(rig, vis, FPS, NF, pos=pos, escala=esc, entra=-6, habla=HABLA.get(nombre, []), festeja=fest,
                  baila=False)
 
@@ -199,26 +204,28 @@ for e in EV:
     fase += 0.37
     if e["tipo"] == "titulo":
         z = e.get("z", 4.2 if not V else 6.6)
-        mostrar([texto3d(e["texto"], (0, 1, z), 1.0 if not V else 0.6, (255, 196, 0))], e["t0"], e["t1"])
+        mostrar([texto3d(e["texto"], (0, 1, z), 1.0 if not V else 0.72, (255, 196, 0))], e["t0"], e["t1"])
     elif e["tipo"] == "item":
-        rig = P.letra(e["ch"], tuple(e["color"]), FUENTE, f"pj_{e['ch']}_{e['t0']}")
-        pos = (-1.2, 0, 0) if not V else (0, 0, 0)
+        rig = crear(e["ch"], tuple(e["color"]), FUENTE, f"pj_{e['ch']}_{e['t0']}")
+        pos = (-1.2, 0, 0) if not V else (0, -1.0, 0)
         P.animar(rig, [(F(e["t0"]), F(e["t1"]))], FPS, NF, pos=pos, fase=fase, habla=HABLA.get(e["ch"], []))
         if e.get("img"):
-            loc = (3.8, 0.5, 2.8) if not V else (0, 1.5, 6.4)
+            loc = (3.8, 0.5, 2.8) if not V else (0, 1.5, 6.0)
             alto = 2.6 if not V else 2.4
             mostrar([imagen(e["img"], loc, alto),
-                     texto3d(e["palabra"].upper(), (loc[0], loc[1], loc[2] - alto * 0.66), alto * 0.36, tuple(e["color"]))],
+                     texto3d(e["palabra"].upper(), (loc[0], loc[1], loc[2] - alto * 0.66), alto * (0.36 if not V else 0.45),
+                             tuple(e["color"]))],
                     e["t0"] + min(0.9, (e["t1"] - e["t0"]) * 0.25), e["t1"])
     elif e["tipo"] == "pregunta":
         n = len(e["opciones"])
-        sep = 3.3 if not V else 2.2
-        esc = 0.8 if not V else 0.55
+        sep = 3.3 if not V else 1.75
+        esc = 0.8 if not V else 0.5
         for i, (ch, c) in enumerate(zip(e["opciones"], e["colores"])):
-            rig = P.letra(ch, tuple(c), FUENTE, f"op_{ch}_{e['t0']}")
+            rig = crear(ch, tuple(c), FUENTE, f"op_{ch}_{e['t0']}")
             ok = ch == e["correcta"]
             x = (i - (n - 1) / 2) * sep + (1.2 if not V else 0)
-            P.animar(rig, [(F(e["t0"]), F(e["t1"]))], FPS, NF, pos=(x, 0, 0), escala=esc, fase=fase + i * 0.5,
+            P.animar(rig, [(F(e["t0"]), F(e["t1"]))], FPS, NF, pos=(x, 0 if not V else -1.5, 0), escala=esc,
+                     fase=fase + i * 0.5,
                      festeja=[(e["t_resp"], e["t1"])] if ok else [], triste=[(e["t_resp"], e["t1"])] if not ok else [],
                      habla=[(e["t_resp"], e["t_resp"] + 1.2)] if ok else [])
             if ok:
@@ -230,9 +237,9 @@ for e in EV:
                 mostrar([aro], e["t_resp"], e["t1"])
         for k, num in enumerate(("3", "2", "1")):
             t0 = e["t_cuenta"] + k * e.get("paso", 1.0)
-            mostrar([texto3d(num, (0, 1, 4.5 if not V else 6.8), 2.4 if not V else 1.6, (255, 120, 40))],
+            mostrar([texto3d(num, (0, 1, 4.5 if not V else 4.6), 2.4 if not V else 1.8, (255, 120, 40))],
                     t0, t0 + e.get("paso", 1.0) - 0.05)
-        mostrar([texto3d(e["texto"], (0, 1, 4.8 if not V else 7.4), 0.9 if not V else 0.5, (255, 196, 0))],
+        mostrar([texto3d(e["texto"], (0, 1, 4.8 if not V else 5.6), 0.9 if not V else 0.42, (255, 196, 0))],
                 e["t0"], e["t_cuenta"])
     elif e["tipo"] == "contar":
         n = e["n"]
@@ -251,10 +258,10 @@ for e in EV:
         m = len(e["chars"])
         fila = e["chars"] if m <= 10 else e["chars"][::max(1, m // 9)]
         k = len(fila)
-        sep = min(2.6, 15 / k) if not V else min(1.6, 8.5 / k)
-        esc = min(0.75, 4.2 / k) if not V else min(0.6, 3.0 / k)
+        sep = min(2.6, 15 / k) if not V else min(1.3, 6.2 / k)
+        esc = min(0.75, 4.2 / k) if not V else min(0.5, 2.4 / k)
         for j, (ch, c) in enumerate(fila):
-            rig = P.letra(ch, tuple(c), FUENTE, f"fin_{ch}")
+            rig = crear(ch, tuple(c), FUENTE, f"fin_{ch}")
             P.animar(rig, [(F(e["t0"]), NF)], FPS, NF, pos=((j - (k - 1) / 2) * sep, 2, 0), escala=esc,
                      fase=j * 0.37, entra=0, festeja=[(e["t0"] + 0.5, e["t0"] + 1.5)])
         mostrar([texto3d(e.get("texto", "¡MUY BIEN!"), (0, 1, 4.4 if not V else 6.6), 1.0 if not V else 0.6,

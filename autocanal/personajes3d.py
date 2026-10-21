@@ -185,6 +185,21 @@ def letra(ch, color, fuente, nombre=None):
     return rig
 
 
+def bolita(color, nombre="bolita"):
+    """Bolita de pintura de un color (para aprender colores): cuerpo redondo brillante, cara, guantes y zapatillas."""
+    rig = Rig(nombre)
+    m = mat(f"bolita{color}", srgb(color), rough=0.18, coat=1)
+    esfera((0, 0, 1.85), 1.25, m, rig.raiz, escala=(1, 0.9, 1.05))
+    esfera((-0.45, -0.75, 2.5), 0.22, mat("brillo_b", (1, 1, 1), rough=0.05, coat=1, emit=0.6), rig.raiz,
+           escala=(1, 0.3, 0.7))
+    rig.alto = 3.2
+    _cara(rig, 0, 2.25, -1.08, ojo_r=0.32, sep=0.4, boca_z=1.5, boca_r=0.3)
+    for s in (-1, 1):
+        _brazo(rig, (s * 1.15, 0, 1.85), s, largo=0.9)
+    _piernas(rig, sep=0.45)
+    return rig
+
+
 def lolo(nombre="lolo"):
     """Lolo, el patito de hule (amarillo brillante, pico naranja, alitas)."""
     rig = Rig(nombre)
@@ -272,7 +287,7 @@ def mishi(nombre="mishi"):
     return rig
 
 
-CATALOGO = {"lolo": lolo, "rita": rita, "tito": tito, "mishi": mishi}
+CATALOGO = {"lolo": lolo, "rita": rita, "tito": tito, "mishi": mishi, "bolita": bolita}
 
 
 # ------------------------------------------------------------------ animación común

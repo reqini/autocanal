@@ -24,6 +24,14 @@ TEMAS = {
                         ("1", "uno", "🍎"), ("2", "dos", "⭐"), ("3", "tres", "🐟"), ("4", "cuatro", "🌸"),
                         ("5", "cinco", "🎈"), ("6", "seis", "🍓"), ("7", "siete", "🐞"), ("8", "ocho", "🍪"),
                         ("9", "nueve", "🦋"), ("10", "diez", "🍌")]),
+    "letras": dict(titulo="¡APRENDE LAS LETRAS!", hola="¡Hola, amigos! ¡Vamos a aprender las letras!",
+                   chau="¡Muy bien! ¡Ya conoces las letras!", items=[
+                       ("A", "abeja", "🐝"), ("B", "ballena", "🐋"), ("C", "casa", "🏠"), ("D", "dado", "🎲"),
+                       ("E", "elefante", "🐘")]),
+    "colores": dict(titulo="¡APRENDE LOS COLORES!", hola="¡Hola, amigos! ¡Vamos a aprender los colores!",
+                    chau="¡Excelente! ¡Ya sabes los colores!", items=[
+                        ("ROJO", "manzana", "🍎"), ("AZUL", "ballena", "🐳"), ("AMARILLO", "banana", "🍌"),
+                        ("VERDE", "rana", "🐸"), ("NARANJA", "naranja", "🍊")]),
     "abecedario": dict(titulo="¡EL ABECEDARIO!", hola="¡Hola, amigos! ¡Vamos a aprender el abecedario!",
                        chau="¡Bravo! ¡Ya sabes todo el abecedario!", items=[
                            ("A", "abeja", "🐝"), ("B", "ballena", "🐋"), ("C", "casa", "🏠"), ("D", "dado", "🎲"),
@@ -391,7 +399,8 @@ def blender_bin():
     return None
 
 
-def render3d(tema, out, vertical=False, log=print, calidad="normal", solo=None, blender=None, interactivo=True):
+def render3d(tema, out, vertical=False, log=print, calidad="normal", solo=None, blender=None, interactivo=True,
+             corto=False):
     """Video 3D con Blender: Lolo presenta, cada letra/número se presenta con su dibujo y, si interactivo=True,
     después vienen los juegos para chicos de hasta 5 años: '¿Dónde está la…?' (3, 2, 1… ¡acá está!) y '¿Cuántos hay?'."""
     import json
@@ -426,8 +435,8 @@ def render3d(tema, out, vertical=False, log=print, calidad="normal", solo=None, 
                 e.save(img)
             return img
 
-        items = T["items"]
-        colores = {ch: COLS[i % len(COLS)] for i, (ch, _, _) in enumerate(items)}
+        items = T["items"][:5] if corto else T["items"]
+        colores = {ch: COLOR_REAL.get(ch, COLS[i % len(COLS)]) for i, (ch, _, _) in enumerate(items)}
         # 1) presentación
         a = t[0]
         di("lolo", T["hola"], 0.8)
@@ -438,18 +447,21 @@ def render3d(tema, out, vertical=False, log=print, calidad="normal", solo=None, 
             sfx.append((a, "pop"))
             if tema == "numeros":
                 di(ch, f"¡El {pal}!", 0.35)
+            elif tema == "colores":
+                di(ch, f"¡El {ch.lower()}!", 0.35)
+                di(ch, f"{ch.capitalize()}, como la {pal}.", 0.35)
             else:
                 di(ch, f"¡La {ch.lower()}!", 0.35)
                 di(ch, f"{ch.lower()}... de {pal}.", 0.35)
             t[0] += 0.5
-            ev.append(dict(tipo="item", ch=ch, palabra=pal if tema != "numeros" else pal, img=emo_png(i, em),
+            ev.append(dict(tipo="item", ch=ch, palabra=ch if tema == "colores" else pal, img=emo_png(i, em),
                            color=colores[ch], t0=a, t1=t[0]))
         # 3) ¡a jugar! (interactivo)
         if interactivo:
             a = t[0]
             di("lolo", "¡Ahora juguemos! ¿Me ayudas?", 0.6)
             ev.append(dict(tipo="anfitrion", quien="lolo", lugar="centro", t0=a, t1=t[0]))
-            preguntas = rnd.sample(items, min(len(items), 5 if tema != "abecedario" else 6))
+            preguntas = rnd.sample(items, 2 if corto else min(len(items), 5 if tema != "abecedario" else 6))
             for k, (ch, pal, em) in enumerate(preguntas):
                 if tema == "numeros" and k % 2 == 1:  # juego de contar
                     n = int(ch)
@@ -473,7 +485,8 @@ def render3d(tema, out, vertical=False, log=print, calidad="normal", solo=None, 
                 ops = otros + [ch]
                 rnd.shuffle(ops)
                 a = t[0]
-                q = f"¿Dónde está el {pal}?" if tema == "numeros" else f"¿Dónde está la {ch.lower()}?"
+                q = (f"¿Dónde está el {pal}?" if tema == "numeros" else f"¿Dónde está el {ch.lower()}?"
+                     if tema == "colores" else f"¿Dónde está la {ch.lower()}?")
                 di("lolo", q + " ¡Señálala con tu dedito!", 0.5)
                 tc = t[0]
                 for j, num in enumerate(("Tres", "Dos", "Uno")):
@@ -483,7 +496,8 @@ def render3d(tema, out, vertical=False, log=print, calidad="normal", solo=None, 
                 t[0] = tc + 3.0
                 tr = t[0]
                 sfx.append((tr, "tada"))
-                di(ch, f"¡Aquí estoy! ¡La {ch.lower()}!" if tema != "numeros" else f"¡Aquí estoy! ¡El {pal}!", 0.2)
+                di(ch, f"¡Aquí estoy! ¡El {pal}!" if tema == "numeros" else f"¡Aquí estoy! ¡El {ch.lower()}!"
+                   if tema == "colores" else f"¡Aquí estoy! ¡La {ch.lower()}!", 0.2)
                 di("lolo", rnd.choice(["¡Muy bien!", "¡Excelente!", "¡Genial!", "¡Lo lograste!"]), 0.9)
                 ev.append(dict(tipo="pregunta", texto=q.upper(), opciones=ops, colores=[colores[c] for c in ops],
                                correcta=ch, t0=a, t_cuenta=tc, t_resp=tr, t1=t[0], paso=1.0))
@@ -519,3 +533,30 @@ def render3d(tema, out, vertical=False, log=print, calidad="normal", solo=None, 
 
 PLURAL = {"🍎": "manzanas", "⭐": "estrellas", "🐟": "peces", "🌸": "flores", "🎈": "globos", "🍓": "frutillas",
           "🐞": "vaquitas", "🍪": "galletitas", "🦋": "mariposas", "🍌": "bananas"}
+
+COLOR_REAL = {"ROJO": (230, 40, 40), "AZUL": (30, 110, 235), "AMARILLO": (250, 205, 20), "VERDE": (40, 175, 70),
+              "NARANJA": (255, 135, 20), "VIOLETA": (140, 70, 220), "ROSA": (240, 100, 170)}
+
+
+def shorts3d(temas, dest, log=print, calidad="normal"):
+    """Arma shorts verticales 3D interactivos (≈1 min) de cada tema y los deja en la cola de Lolo."""
+    import json
+    os.makedirs(dest, exist_ok=True)
+    nombres = {"letras": "Aprende las letras", "numeros": "Aprende los números", "colores": "Aprende los colores",
+               "vocales": "Aprende las vocales", "abecedario": "El abecedario"}
+    pj = os.path.join(dest, "publicar.json")
+    for tema in temas:
+        out = os.path.join(dest, f"short3d_{tema}.mp4")
+        log(f"• Short 3D: {nombres.get(tema, tema)}…")
+        render3d(tema, out, True, log, calidad=calidad, corto=True)
+        items = json.load(open(pj, encoding="utf-8")) if os.path.exists(pj) else []
+        a = os.path.basename(out)
+        items = [i for i in items if i["archivo"] != a] + [{
+            "archivo": a, "tipo": "short", "ninos": True, "categoria": "27",
+            "titulo": f"{nombres.get(tema, tema)} con Lolo 🦆 ¡Juega y aprende! #shorts"[:100],
+            "descripcion": (f"{nombres.get(tema, tema)} jugando con Lolo y sus amigos 🎶 ¿Encontrás la respuesta antes "
+                            "de que termine la cuenta? 3, 2, 1… 🦆\n\nVideo educativo para chicos de hasta 5 años.\n\n"
+                            "#AprendeJugando #VideosParaNiños #Educativo #Shorts"),
+            "tags": ["aprende jugando", tema, "videos para niños", "educativo", "lolo el patito", "preescolar"]}]
+        json.dump(items, open(pj, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+        log(f"  ✓ {out}")
